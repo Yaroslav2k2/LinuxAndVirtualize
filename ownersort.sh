@@ -1,20 +1,25 @@
-dir=$(ls -l | tr -s ' ' '\t' | cut -f '3' | sort -u)
-for i in $dir; do
-	mkdir -p $i
+
+owners=$(ls -l | awk '{print $3}' | sort | uniq)
+
+for owner in $owners; do
+    mkdir -p "$owner"
 done
-dirfile=$(ls -l | tr -s ' ' '\t' | cut -f '3 9')
-count=0
-for i in $dirfile; do
- 	count=$((count+1))
-		if (($count%2))
-			then
-				dir=$i
-				echo $dir = $i zero
-			else
-				if [ -f ./$i ]
-					then
-					cp ./$i ./$dir/$i
-				fi
-		fi
+
+owner_file_list=$(ls -l | awk '{print $3, $9}')
+
+index=0
+
+for item in $owner_file_list; do
+    index=$((index + 1))
+    if ((index % 2 != 0)); then
+        current_owner="$item"
+        echo "Текущий владелец: $current_owner"
+    else
+        if [ -f "$item" ]; then
+            cp "$item" "$current_owner/$item"
+            echo "Скопирован файл '$item' в директорию '$current_owner'"
+        fi
+    fi
 done
+
   
